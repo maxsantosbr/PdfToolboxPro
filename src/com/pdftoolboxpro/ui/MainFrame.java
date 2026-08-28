@@ -8,10 +8,12 @@ import com.pdftoolboxpro.ui.panels.ZipPanel;
 import com.pdftoolboxpro.util.I18n;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.Window;
 import java.util.Locale;
 import javax.swing.*;
 
 public class MainFrame extends JFrame {
+
     private JTabbedPane tabbedPane;
     private JComboBox<String> langCombo;
     private JLabel statusLabel;
@@ -33,7 +35,10 @@ public class MainFrame extends JFrame {
         setSize(980, 620);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
-        try { setIconImage(new ImageIcon(getClass().getResource("/com/pdftoolboxpro/resources/icon2.png")).getImage()); } catch(Exception e){}
+        try {
+            setIconImage(new ImageIcon(getClass().getResource("/com/pdftoolboxpro/resources/icon2.png")).getImage());
+        } catch (Exception e) {
+        }
 
         JMenuBar bar = new JMenuBar();
         helpMenu = new JMenu(I18n.get("menu.help"));
@@ -41,9 +46,16 @@ public class MainFrame extends JFrame {
         updateItem = new JMenuItem(I18n.get("help.updates"));
         buyItem = new JMenuItem(I18n.get("help.buy"));
         aboutItem.addActionListener(e -> JOptionPane.showMessageDialog(this, I18n.get("about.text"), I18n.get("about.title"), JOptionPane.INFORMATION_MESSAGE));
-        updateItem.addActionListener(e -> JOptionPane.showMessageDialog(this, I18n.get("update.text"), I18n.get("update.title"), JOptionPane.INFORMATION_MESSAGE));
+//        updateItem.addActionListener(e -> JOptionPane.showMessageDialog(this, I18n.get("update.text"), I18n.get("update.title"), JOptionPane.INFORMATION_MESSAGE));
+        updateItem.addActionListener(e -> {
+            UpdaterUI updater = new UpdaterUI();
+            updater.setLocationRelativeTo(this);
+            updater.setVisible(true);
+        });
         buyItem.addActionListener(e -> JOptionPane.showMessageDialog(this, I18n.get("buy.text"), I18n.get("buy.title"), JOptionPane.INFORMATION_MESSAGE));
-        helpMenu.add(aboutItem); helpMenu.add(updateItem); helpMenu.add(buyItem);
+        helpMenu.add(aboutItem);
+        helpMenu.add(updateItem);
+        helpMenu.add(buyItem);
         bar.add(helpMenu);
         setJMenuBar(bar);
 
@@ -72,14 +84,29 @@ public class MainFrame extends JFrame {
         add(statusLabel, BorderLayout.SOUTH);
     }
 
-    private void changeLanguage() {        
+    private void changeLanguage() {
         int idx = langCombo.getSelectedIndex();
-        if (idx == 0) I18n.setLocale(Locale.ENGLISH);
-        if (idx == 1) I18n.setLocale(new Locale("pt", "BR"));
-        if (idx == 2) I18n.setLocale(Locale.GERMAN);
-        if (idx == 3) I18n.setLocale(new Locale("es", "ES"));
-        if (idx == 4) I18n.setLocale(new Locale("mt", "MT"));
+        if (idx == 0) {
+            I18n.setLocale(Locale.ENGLISH);
+        }
+        if (idx == 1) {
+            I18n.setLocale(new Locale("pt", "BR"));
+        }
+        if (idx == 2) {
+            I18n.setLocale(Locale.GERMAN);
+        }
+        if (idx == 3) {
+            I18n.setLocale(new Locale("es", "ES"));
+        }
+        if (idx == 4) {
+            I18n.setLocale(new Locale("mt", "MT"));
+        }
         applyI18n();
+        for (Window w : Window.getWindows()) {
+            if (w instanceof UpdaterUI) {
+                ((UpdaterUI) w).updateTexts();
+            }
+        }
         SwingUtilities.updateComponentTreeUI(this);
     }
 
