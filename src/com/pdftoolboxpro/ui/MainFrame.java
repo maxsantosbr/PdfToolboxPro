@@ -11,6 +11,10 @@ import java.awt.FlowLayout;
 import java.awt.Window;
 import java.util.Locale;
 import javax.swing.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.io.File;
 
 public class MainFrame extends JFrame {
 
@@ -26,8 +30,24 @@ public class MainFrame extends JFrame {
     private JMenuItem aboutItem, updateItem, buyItem;
 
     public MainFrame() {
+        loadSavedLanguage();
         initComponents();
         applyI18n();
+        // nao dispara o ActionListener ao posicionar
+        langCombo.removeActionListener(langCombo.getActionListeners()[0]);
+        String lang = I18n.getCurrentLocale().toString();
+        if (lang.startsWith("pt")) {
+            langCombo.setSelectedIndex(1);
+        } else if (lang.startsWith("de")) {
+            langCombo.setSelectedIndex(2);
+        } else if (lang.startsWith("es")) {
+            langCombo.setSelectedIndex(3);
+        } else if (lang.startsWith("mt")) {
+            langCombo.setSelectedIndex(4);
+        } else {
+            langCombo.setSelectedIndex(0);
+        }
+        langCombo.addActionListener(e -> changeLanguage());
     }
 
     private void initComponents() {
@@ -46,7 +66,6 @@ public class MainFrame extends JFrame {
         updateItem = new JMenuItem(I18n.get("help.updates"));
         buyItem = new JMenuItem(I18n.get("help.buy"));
         aboutItem.addActionListener(e -> JOptionPane.showMessageDialog(this, I18n.get("about.text"), I18n.get("about.title"), JOptionPane.INFORMATION_MESSAGE));
-//        updateItem.addActionListener(e -> JOptionPane.showMessageDialog(this, I18n.get("update.text"), I18n.get("update.title"), JOptionPane.INFORMATION_MESSAGE));
         updateItem.addActionListener(e -> {
             UpdaterUI updater = new UpdaterUI();
             updater.setLocationRelativeTo(this);
@@ -101,6 +120,13 @@ public class MainFrame extends JFrame {
         if (idx == 4) {
             I18n.setLocale(new Locale("mt", "MT"));
         }
+        // salva permanente
+        try {
+            Path p = Paths.get(System.getProperty("user.home"), ".pdftoolboxpro", "lang.txt");
+            Files.createDirectories(p.getParent());
+            Files.writeString(p, I18n.getCurrentLocale().toString());
+        } catch (Exception e) {
+        }
         applyI18n();
         for (Window w : Window.getWindows()) {
             if (w instanceof UpdaterUI) {
@@ -128,4 +154,26 @@ public class MainFrame extends JFrame {
         zipPanel.updateTexts();
         imagePanel.updateTexts();
     }
+
+    private void loadSavedLanguage() {
+        try {
+            Path p = Paths.get(System.getProperty("user.home"), ".pdftoolboxpro", "lang.txt");
+            if (Files.exists(p)) {
+                String s = Files.readString(p).trim();
+                if (s.equals("pt_BR")) {
+                    I18n.setLocale(new Locale("pt", "BR"));
+                } else if (s.equals("de")) {
+                    I18n.setLocale(Locale.GERMAN);
+                } else if (s.equals("es")) {
+                    I18n.setLocale(new Locale("es", "ES"));
+                } else if (s.equals("mt_MT") || s.equals("mt")) {
+                    I18n.setLocale(new Locale("mt", "MT"));
+                } else {
+                    I18n.setLocale(Locale.ENGLISH);
+                }
+            }
+        } catch (Exception e) {
+        }
+    }
+
 }

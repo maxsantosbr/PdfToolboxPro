@@ -11,12 +11,14 @@ public class I18n {
         setLocale(Locale.ENGLISH);
     }
 
-    public static void setLocale(Locale locale) {
+        public static void setLocale(Locale locale) {
         try {
             currentLocale = locale;
-            bundle = ResourceBundle.getBundle("com.pdftoolboxpro.i18n.Bundle", locale);
+            ResourceBundle.clearCache();
+            bundle = ResourceBundle.getBundle("com.pdftoolboxpro.i18n.Bundle", locale, ResourceBundle.Control.getNoFallbackControl(ResourceBundle.Control.FORMAT_DEFAULT));
         } catch (Exception e) {
-            bundle = ResourceBundle.getBundle("com.pdftoolboxpro.i18n.Bundle", Locale.ENGLISH);
+            ResourceBundle.clearCache();
+            bundle = ResourceBundle.getBundle("com.pdftoolboxpro.i18n.Bundle", Locale.ENGLISH, ResourceBundle.Control.getNoFallbackControl(ResourceBundle.Control.FORMAT_DEFAULT));
         }
     }
     
