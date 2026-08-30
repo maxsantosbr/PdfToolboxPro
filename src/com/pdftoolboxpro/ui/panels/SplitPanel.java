@@ -72,6 +72,7 @@ public class SplitPanel extends JPanel {
         fc.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("PDF","pdf"));
         if(fc.showOpenDialog(this)!=JFileChooser.APPROVE_OPTION) return;
         File src=fc.getSelectedFile();
+        JOptionPane.showMessageDialog(this, I18n.get("dialog.choosesave"), I18n.get("split.step2.title"), JOptionPane.INFORMATION_MESSAGE);
         JFileChooser dc=new JFileChooser(); dc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         if(dc.showSaveDialog(this)!=JFileChooser.APPROVE_OPTION) return;
         File destDir=dc.getSelectedFile();

@@ -73,6 +73,7 @@ public class CompressPanel extends JPanel {
         if(fc.showOpenDialog(this)!=JFileChooser.APPROVE_OPTION) return;
         File src=fc.getSelectedFile();
         JFileChooser save=new JFileChooser();
+        JOptionPane.showMessageDialog(this, I18n.get("dialog.choosesave"), I18n.get("compress.step2.title"), JOptionPane.INFORMATION_MESSAGE);
         save.setSelectedFile(new File(src.getName().replace(".pdf","_compressed.pdf")));
         if(save.showSaveDialog(this)!=JFileChooser.APPROVE_OPTION) return;
         File dest=save.getSelectedFile();

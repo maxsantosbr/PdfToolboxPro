@@ -1,0 +1,28 @@
+PDF TOOLBOX PRO - END USER LICENSE AGREEMENT (EULA)
+Version 1.2.0 - 2026
+
+Copyright (c) 2026 Maxwell Souza dos Santos
+CNPJ: 54.718.287/0001-19
+All rights reserved / Todos os direitos reservados
+
+1. LICENSE GRANT
+This software is licensed, not sold. Upon purchase on Gumroad you receive
+a non-exclusive, non-transferable license to install and use PDF Toolbox Pro
+on 1 (one) computer for personal or commercial use.
+
+2. RESTRICTIONS
+You may not redistribute, resell, rent, reverse engineer, decompile or
+modify the software. The software is 100% offline - your PDFs never leave
+your computer.
+
+3. NO WARRANTY
+Provided "as is" without warranty. The author is not liable for any
+damages arising from use.
+
+4. UPDATES
+Version 1.x includes free minor updates via Help > Check for Updates.
+
+For support: suporte@ultracipa.com.br
+https://github.com/maxsantosbr/PdfToolboxPro
+
+© 2026 Maxwell Souza dos Santos - CNPJ 54.718.287/0001-19

@@ -27,16 +27,16 @@ import com.pdftoolboxpro.util.I18n;
 public class UpdaterUI extends javax.swing.JFrame {
 
     // Versão atual do seu programa (ex: "1.0", "1.1", "2.0")
-    public static final String VERSAO_ATUAL = "1.1.0";
+    public static final String VERSAO_ATUAL = "1.2.2";
 
     // https://raw.githubusercontent.com/SEU_USUARIO/SEU_REPO/main/version.txt
-    public static final String URL_VERSAO = "https://raw.githubusercontent.com/maxsantosbr/PdfToolboxPro/main/version.txt";
+    public static final String URL_VERSAO = "https://raw.githubusercontent.com/maxsantosbr/PdfToolboxPro-releases/main/version.txt";
 
     // https://github.com/SEU_USUARIO/SEU_REPO/releases/latest/download/MeuPrograma.jar
-    private static final String URL_DOWNLOAD_JAR = "https://github.com/maxsantosbr/PdfToolboxPro/releases/latest/download/PdfToolboxPro.exe";
+    private static final String URL_DOWNLOAD_JAR = "https://github.com/maxsantosbr/PdfToolboxPro-releases/releases/latest/download/PdfToolboxPro-Setup.exe";
 
     // Nome do arquivo jar que será baixado
-    private static final String NOME_JAR = "PdfToolboxPro.exe";
+    private static final String NOME_JAR = "PdfToolboxPro-Setup.exe";
 
     /**
      * Creates new form UpdaterUI

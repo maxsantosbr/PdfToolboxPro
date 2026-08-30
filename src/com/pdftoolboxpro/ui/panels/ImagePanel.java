@@ -73,6 +73,7 @@ public class ImagePanel extends JPanel {
         fc.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Images","jpg","jpeg","png"));
         if(fc.showOpenDialog(this)!=JFileChooser.APPROVE_OPTION) return;
         File[] files=fc.getSelectedFiles(); if(files.length==0) return;
+        JOptionPane.showMessageDialog(this, I18n.get("dialog.choosesave"), I18n.get("image.step2.title"), JOptionPane.INFORMATION_MESSAGE);
         JFileChooser save=new JFileChooser(); save.setSelectedFile(new File("imagens.pdf"));
         if(save.showSaveDialog(this)!=JFileChooser.APPROVE_OPTION) return;
         File dest=save.getSelectedFile(); if(!dest.getName().toLowerCase().endsWith(".pdf")) dest=new File(dest.getParentFile(), dest.getName()+".pdf");
