@@ -1,6 +1,7 @@
 package com.pdftoolboxpro.ui.panels;
 
 import com.pdftoolboxpro.core.ZipCreator;
+import com.pdftoolboxpro.ui.LoadingDialog;
 import com.pdftoolboxpro.util.I18n;
 import java.awt.*;
 import java.io.File;
@@ -76,14 +77,34 @@ public class ZipPanel extends JPanel {
         JOptionPane.showMessageDialog(this, I18n.get("dialog.choosesave"), I18n.get("zip.step2.title"), JOptionPane.INFORMATION_MESSAGE);
         JFileChooser save=new JFileChooser(); save.setSelectedFile(new File("arquivos.zip"));
         if(save.showSaveDialog(this)!=JFileChooser.APPROVE_OPTION) return;
-        File dest=save.getSelectedFile(); if(!dest.getName().toLowerCase().endsWith(".zip")) dest=new File(dest.getParentFile(), dest.getName()+".zip");
-        try{
-            new ZipCreator().createZip(Arrays.asList(files), dest);
-            String msg = dest.getAbsolutePath() + "\n\n" + I18n.get("dialog.openfolder");
-            int opt = JOptionPane.showConfirmDialog(this, msg, I18n.get("zip.step3.title"), JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-            if(opt == JOptionPane.YES_OPTION){
-                try{ Desktop.getDesktop().open(dest.getParentFile()); } catch(Exception ex){}
+        File destTmp=save.getSelectedFile(); if(!destTmp.getName().toLowerCase().endsWith(".zip")) destTmp=new File(destTmp.getParentFile(), destTmp.getName()+".zip");
+        final File dest = destTmp;
+        LoadingDialog loading = new LoadingDialog(SwingUtilities.getWindowAncestor(this), I18n.get("zip.step2.title") + " - 0%");
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                new ZipCreator().createZip(Arrays.asList(files), dest, p ->
+                    SwingUtilities.invokeLater(() -> loading.setProgress(p, I18n.get("zip.step2.title") + " - " + p + "%"))
+                );
+                return null;
             }
-        } catch(Exception ex){ JOptionPane.showMessageDialog(this,"Error: "+ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE); }
+            @Override
+            protected void done() {
+                loading.dispose();
+                try {
+                    get();
+                    String msg = dest.getAbsolutePath() + "\n\n" + I18n.get("dialog.openfolder");
+                    int opt = JOptionPane.showConfirmDialog(ZipPanel.this, msg, I18n.get("zip.step3.title"), JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                    if(opt == JOptionPane.YES_OPTION){
+                        try{ Desktop.getDesktop().open(dest.getParentFile()); } catch(Exception ex){}
+                    }
+                } catch (Exception ex) {
+                    Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
+                    JOptionPane.showMessageDialog(ZipPanel.this,"Error: "+cause.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        };
+        worker.execute();
+        loading.setVisible(true);
     }
 }

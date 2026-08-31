@@ -1,6 +1,7 @@
 package com.pdftoolboxpro.ui.panels;
 
 import com.pdftoolboxpro.core.PdfSplitter;
+import com.pdftoolboxpro.ui.LoadingDialog;
 import com.pdftoolboxpro.util.I18n;
 import java.awt.*;
 import java.io.File;
@@ -76,13 +77,32 @@ public class SplitPanel extends JPanel {
         JFileChooser dc=new JFileChooser(); dc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         if(dc.showSaveDialog(this)!=JFileChooser.APPROVE_OPTION) return;
         File destDir=dc.getSelectedFile();
-        try{
-            new PdfSplitter().split(src, destDir);
-            String msg = destDir.getAbsolutePath() + "\n\n" + I18n.get("dialog.openfolder");
-            int opt = JOptionPane.showConfirmDialog(this, msg, I18n.get("split.step3.title"), JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-            if(opt == JOptionPane.YES_OPTION){
-                try{ Desktop.getDesktop().open(destDir); } catch(Exception ex){}
+        LoadingDialog loading = new LoadingDialog(SwingUtilities.getWindowAncestor(this), I18n.get("split.step2.title") + " - 0%");
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                new PdfSplitter().split(src, destDir, p ->
+                    SwingUtilities.invokeLater(() -> loading.setProgress(p, I18n.get("split.step2.title") + " - " + p + "%"))
+                );
+                return null;
             }
-        } catch(Exception ex){ JOptionPane.showMessageDialog(this,"Error: "+ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE); }
+            @Override
+            protected void done() {
+                loading.dispose();
+                try {
+                    get();
+                    String msg = destDir.getAbsolutePath() + "\n\n" + I18n.get("dialog.openfolder");
+                    int opt = JOptionPane.showConfirmDialog(SplitPanel.this, msg, I18n.get("split.step3.title"), JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                    if(opt == JOptionPane.YES_OPTION){
+                        try{ Desktop.getDesktop().open(destDir); } catch(Exception ex){}
+                    }
+                } catch (Exception ex) {
+                    Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
+                    JOptionPane.showMessageDialog(SplitPanel.this,"Error: "+cause.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        };
+        worker.execute();
+        loading.setVisible(true);
     }
 }

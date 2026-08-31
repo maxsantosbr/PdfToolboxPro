@@ -27,7 +27,7 @@ import com.pdftoolboxpro.util.I18n;
 public class UpdaterUI extends javax.swing.JFrame {
 
     // Versão atual do seu programa (ex: "1.0", "1.1", "2.0")
-    public static final String VERSAO_ATUAL = "1.3.3";
+    public static final String VERSAO_ATUAL = "1.4.4";
 
     // https://raw.githubusercontent.com/SEU_USUARIO/SEU_REPO/main/version.txt
     public static final String URL_VERSAO = "https://raw.githubusercontent.com/maxsantosbr/PdfToolboxPro-releases/main/version.txt";

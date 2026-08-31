@@ -1,10 +1,12 @@
 package com.pdftoolboxpro.ui.panels;
 
 import com.pdftoolboxpro.core.PdfMerger;
+import com.pdftoolboxpro.ui.LoadingDialog;
 import com.pdftoolboxpro.util.I18n;
 import java.awt.*;
 import java.io.File;
 import java.util.Arrays;
+import java.util.Comparator;
 import javax.swing.*;
 
 public class MergePanel extends JPanel {
@@ -73,17 +75,41 @@ public class MergePanel extends JPanel {
         fc.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("PDF","pdf"));
         if(fc.showOpenDialog(this)!=JFileChooser.APPROVE_OPTION) return;
         File[] files=fc.getSelectedFiles(); if(files.length<2){ JOptionPane.showMessageDialog(this,"Select at least 2 PDFs"); return; }
+        Arrays.sort(files, Comparator.comparingInt(f -> {
+            String n = f.getName().replaceAll("\\D+", "");
+            return n.isEmpty() ? 0 : Integer.parseInt(n);
+        }));
         JOptionPane.showMessageDialog(this, I18n.get("dialog.choosesave"), I18n.get("merge.step2.title"), JOptionPane.INFORMATION_MESSAGE);
         JFileChooser save=new JFileChooser(); save.setSelectedFile(new File("merged.pdf"));
         if(save.showSaveDialog(this)!=JFileChooser.APPROVE_OPTION) return;
-        File dest=save.getSelectedFile(); if(!dest.getName().toLowerCase().endsWith(".pdf")) dest=new File(dest.getParentFile(), dest.getName()+".pdf");
-        try{
-            new PdfMerger().merge(Arrays.asList(files), dest);
-            String msg = dest.getAbsolutePath() + "\n\n" + I18n.get("dialog.openfolder");
-            int opt = JOptionPane.showConfirmDialog(this, msg, I18n.get("merge.step3.title"), JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-            if(opt == JOptionPane.YES_OPTION){
-                try{ if(Desktop.isDesktopSupported()) Desktop.getDesktop().open(dest.getParentFile()); } catch(Exception ex){}
+        File destTmp=save.getSelectedFile(); if(!destTmp.getName().toLowerCase().endsWith(".pdf")) destTmp=new File(destTmp.getParentFile(), destTmp.getName()+".pdf");
+        final File dest = destTmp;
+        LoadingDialog loading = new LoadingDialog(SwingUtilities.getWindowAncestor(this), I18n.get("merge.step2.title") + " - 0%");
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                new PdfMerger().merge(Arrays.asList(files), dest, p ->
+                    SwingUtilities.invokeLater(() -> loading.setProgress(p, I18n.get("merge.step2.title") + " - " + p + "%"))
+                );
+                return null;
             }
-        } catch(Exception ex){ JOptionPane.showMessageDialog(this,"Error: "+ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE); }
+            @Override
+            protected void done() {
+                loading.dispose();
+                try {
+                    get();
+                    String msg = dest.getAbsolutePath() + "\n\n" + I18n.get("dialog.openfolder");
+                    int opt = JOptionPane.showConfirmDialog(MergePanel.this, msg, I18n.get("merge.step3.title"), JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                    if(opt == JOptionPane.YES_OPTION){
+                        try{ if(Desktop.isDesktopSupported()) Desktop.getDesktop().open(dest.getParentFile()); } catch(Exception ex){}
+                    }
+                } catch (Exception ex) {
+                    Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
+                    JOptionPane.showMessageDialog(MergePanel.this,"Error: "+cause.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        };
+        worker.execute();
+        loading.setVisible(true);
     }
 }

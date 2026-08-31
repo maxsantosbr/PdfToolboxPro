@@ -1,6 +1,7 @@
 package com.pdftoolboxpro.ui.panels;
 
 import com.pdftoolboxpro.core.PdfCompressor;
+import com.pdftoolboxpro.ui.LoadingDialog;
 import com.pdftoolboxpro.util.I18n;
 import java.awt.*;
 import java.io.File;
@@ -76,17 +77,38 @@ public class CompressPanel extends JPanel {
         JOptionPane.showMessageDialog(this, I18n.get("dialog.choosesave"), I18n.get("compress.step2.title"), JOptionPane.INFORMATION_MESSAGE);
         save.setSelectedFile(new File(src.getName().replace(".pdf","_compressed.pdf")));
         if(save.showSaveDialog(this)!=JFileChooser.APPROVE_OPTION) return;
-        File dest=save.getSelectedFile();
-        if(!dest.getName().toLowerCase().endsWith(".pdf")) dest=new File(dest.getParentFile(), dest.getName()+".pdf");
-        try{
-            long before=src.length();
-            new PdfCompressor().compress(src, dest);
-            long after=dest.length();
-            String msg = "Before: "+before/1024+"KB -> After: "+after/1024+"KB\n"+dest.getAbsolutePath() + "\n\n" + I18n.get("dialog.openfolder");
-            int opt = JOptionPane.showConfirmDialog(this, msg, I18n.get("compress.step3.title"), JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-            if(opt == JOptionPane.YES_OPTION){
-                try{ Desktop.getDesktop().open(dest.getParentFile()); } catch(Exception ex){}
+        File destTmp=save.getSelectedFile();
+        if(!destTmp.getName().toLowerCase().endsWith(".pdf")) destTmp=new File(destTmp.getParentFile(), destTmp.getName()+".pdf");
+        final File dest = destTmp;
+        LoadingDialog loading = new LoadingDialog(SwingUtilities.getWindowAncestor(this), I18n.get("compress.step2.title") + " - 0%");
+        loading.setProgress(10);
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                SwingUtilities.invokeLater(() -> loading.setProgress(30, I18n.get("compress.step2.title") + " - 30%"));
+                new PdfCompressor().compress(src, dest);
+                SwingUtilities.invokeLater(() -> loading.setProgress(100, I18n.get("compress.step2.title") + " - 100%"));
+                return null;
             }
-        } catch(Exception ex){ JOptionPane.showMessageDialog(this,"Error: "+ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE); }
+            @Override
+            protected void done() {
+                loading.dispose();
+                try {
+                    get();
+                    long before=src.length();
+                    long after=dest.length();
+                    String msg = "Before: "+before/1024+"KB -> After: "+after/1024+"KB\n"+dest.getAbsolutePath() + "\n\n" + I18n.get("dialog.openfolder");
+                    int opt = JOptionPane.showConfirmDialog(CompressPanel.this, msg, I18n.get("compress.step3.title"), JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                    if(opt == JOptionPane.YES_OPTION){
+                        try{ Desktop.getDesktop().open(dest.getParentFile()); } catch(Exception ex){}
+                    }
+                } catch (Exception ex) {
+                    Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
+                    JOptionPane.showMessageDialog(CompressPanel.this,"Error: "+cause.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        };
+        worker.execute();
+        loading.setVisible(true);
     }
 }
