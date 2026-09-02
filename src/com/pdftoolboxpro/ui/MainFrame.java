@@ -44,6 +44,8 @@ public class MainFrame extends JFrame {
             langCombo.setSelectedIndex(3);
         } else if (lang.startsWith("mt")) {
             langCombo.setSelectedIndex(4);
+        } else if (lang.startsWith("fr")) {
+            langCombo.setSelectedIndex(5);
         } else {
             langCombo.setSelectedIndex(0);
         }
@@ -80,7 +82,7 @@ public class MainFrame extends JFrame {
 
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         topPanel.add(new JLabel("Language / Idioma:"));
-        langCombo = new JComboBox<>(new String[]{"English", "Portugu\u00EAs (BR)", "Deutsch", "Espa\u00F1ol", "Malti"});
+        langCombo = new JComboBox<>(new String[]{"English", "Portugu\u00EAs (BR)", "Deutsch", "Espa\u00F1ol", "Malti", "Fran\u00E7ais"});
         langCombo.addActionListener(e -> changeLanguage());
         topPanel.add(langCombo);
         add(topPanel, BorderLayout.NORTH);
@@ -119,6 +121,9 @@ public class MainFrame extends JFrame {
         }
         if (idx == 4) {
             I18n.setLocale(new Locale("mt", "MT"));
+        }
+        if (idx == 5) {
+            I18n.setLocale(Locale.FRENCH);
         }
         // salva permanente
         try {
@@ -168,6 +173,8 @@ public class MainFrame extends JFrame {
                     I18n.setLocale(new Locale("es", "ES"));
                 } else if (s.equals("mt_MT") || s.equals("mt")) {
                     I18n.setLocale(new Locale("mt", "MT"));
+                } else if (s.equals("fr")) {
+                    I18n.setLocale(Locale.FRENCH);
                 } else {
                     I18n.setLocale(Locale.ENGLISH);
                 }
