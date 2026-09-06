@@ -4,7 +4,10 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/Users/Maxwell/Documents/NetBeansProjects-12/PdfToolboxPro/src/com/pdftoolboxpro/ui/UpdaterUI.java</file>
+            <file>file:/C:/Users/Maxwell/Documents/NetBeansProjects-12/PdfToolboxPro/src/com/pdftoolboxpro/i18n/Bundle_fr.properties</file>
             <file>file:/C:/Users/Maxwell/Documents/NetBeansProjects-12/PdfToolboxPro/src/com/pdftoolboxpro/ui/panels/MergePanel.java</file>
+            <file>file:/C:/Users/Maxwell/Documents/NetBeansProjects-12/PdfToolboxPro/src/com/pdftoolboxpro/ui/MainFrame.java</file>
+            <file>file:/C:/Users/Maxwell/Documents/NetBeansProjects-12/PdfToolboxPro/src/com/pdftoolboxpro/i18n/Bundle.properties</file>
         </group>
     </open-files>
 </project-private>

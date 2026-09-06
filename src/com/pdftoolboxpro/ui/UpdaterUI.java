@@ -13,12 +13,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.concurrent.ExecutionException;
-import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import com.pdftoolboxpro.util.I18n;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -27,7 +27,7 @@ import com.pdftoolboxpro.util.I18n;
 public class UpdaterUI extends javax.swing.JFrame {
 
     // Versão atual do seu programa (ex: "1.0", "1.1", "2.0")
-    public static final String VERSAO_ATUAL = "1.5.4";
+    public static final String VERSAO_ATUAL = "1.6.4";
 
     // https://raw.githubusercontent.com/SEU_USUARIO/SEU_REPO/main/version.txt
     public static final String URL_VERSAO = "https://raw.githubusercontent.com/maxsantosbr/PdfToolboxPro-releases/main/version.txt";
@@ -57,15 +57,39 @@ public class UpdaterUI extends javax.swing.JFrame {
         lblStatus.setText(I18n.get("updater.status"));
     }//updateTexts
 
+    private boolean isInternetAvailable() {
+        try {
+            URL url = new URL("https://www.google.com");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setConnectTimeout(3000);
+            conn.setReadTimeout(3000);
+            conn.setRequestMethod("HEAD");
+            int code = conn.getResponseCode();
+            return (code >= 200 && code < 400);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     //Verifica se existe a versão mais nova
-    private void verificarAtualizacao() {
+        private void verificarAtualizacao() {
+        if (!isInternetAvailable()) {
+            lblStatus.setVisible(true);
+            lblStatus.setText(I18n.get("updater.error.offline"));
+            lblStatus.setForeground(Color.RED);
+            JOptionPane.showMessageDialog(this,
+                    I18n.get("updater.error.offline"),
+                    I18n.get("updater.title"),
+                    JOptionPane.WARNING_MESSAGE);
+            btnVerificar.setEnabled(true);
+            return;
+        }
+
         btnVerificar.setEnabled(false);
         lblStatus.setVisible(true);
-//        lblStatus.setText("Mantenha o software aberto. Estamos verificando...");
         lblStatus.setText(I18n.get("updater.checking"));
         lblStatus.setForeground(Color.BLUE);
 
-        // Usa SwingWorker para não travar a interface
         SwingWorker<String, Void> worker = new SwingWorker<String, Void>() {
             @Override
             protected String doInBackground() throws Exception {
@@ -78,8 +102,20 @@ public class UpdaterUI extends javax.swing.JFrame {
                     String versaoRemota = get();
                     compararVersoes(versaoRemota);
                 } catch (InterruptedException | ExecutionException ex) {
-                    lblStatus.setText("Erro ao verificar: " + ex.getMessage());
+                    Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
+                    String msg = cause.getMessage();
+                    if (msg == null || msg.toLowerCase().contains("unknownhost") || msg.toLowerCase().contains("connect") || msg.toLowerCase().contains("timed out")) {
+                        msg = I18n.get("updater.error.offline");
+                    } else {
+                        msg = "Erro ao verificar: " + msg;
+                    }
+                    lblStatus.setVisible(true);
+                    lblStatus.setText(msg);
                     lblStatus.setForeground(Color.RED);
+                    JOptionPane.showMessageDialog(UpdaterUI.this,
+                            msg,
+                            I18n.get("updater.title"),
+                            JOptionPane.ERROR_MESSAGE);
                     btnVerificar.setEnabled(true);
                 }
             }
@@ -171,7 +207,7 @@ public class UpdaterUI extends javax.swing.JFrame {
     private void baixarAtualizacao() {
         lblStatus.setVisible(true);
 //        lblStatus.setText("Baixando atualização...");
-lblStatus.setText(I18n.get("updater.downloading"));
+        lblStatus.setText(I18n.get("updater.downloading"));
         barraProgresso.setValue(0);
         barraProgresso.setString("0%");
         btnVerificar.setEnabled(false);
